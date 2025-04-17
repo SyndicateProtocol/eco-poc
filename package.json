@@ -1,0 +1,19 @@
+{
+  "name": "eco-poc-contracts",
+  "description": "Contracts for Eco POC",
+  "version": "1.0.0",
+  "scripts": {
+    "format": "./node_modules/.bin/prettier --write contracts/**/*.sol",
+    "lint": "prettier --list-different 'contracts/**/*.sol'",
+    "prettier": "prettier --write --plugin=prettier-plugin-solidity 'contracts/**/*.sol'",
+    "status": "./node_modules/.bin/solhint -f table contracts/**/*.sol"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run prettier"
+    }
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.3.0"
+  }
+}
