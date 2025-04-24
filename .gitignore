@@ -1,7 +1,13 @@
-#Hardhat files
-cache
-artifacts
+# Foundry files
+cache/
+out/
+.gas-snapshot
+lcov.report
+lcov.info
+.env
 
+# Compiler files
+forge-cache/
 
 # dependencies
 node_modules

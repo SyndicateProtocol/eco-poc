@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.25;
+import {
+    IAccessControl
+} from "@openzeppelin/contracts/access/IAccessControl.sol";
 
-/// @title ICrowdLiquidityRegistrar
-/// @notice Interface for crowd liquidity address checks
-interface ICrowdLiquidityRegistrar {
+/**
+ * @title ICrowdLiquidityRegistrar
+ * @notice Interface for crowd liquidity address checks
+ */
+interface ICrowdLiquidityRegistrar is IAccessControl {
     // Events
     event CrowdLiquidityAdded(
         uint256 indexed crowdLiquidityId,
@@ -20,7 +25,10 @@ interface ICrowdLiquidityRegistrar {
         address indexed crowdLiquidityAddress
     );
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * --------------------------------------------------------
+     * --------------------------------------------------------
+     */
 
     // Errors
     error CrowdLiquidityAlreadyLocked();
@@ -29,25 +37,38 @@ interface ICrowdLiquidityRegistrar {
     error CrowdLiquidityAddressAlreadyAdded();
     error InvalidAddress();
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * --------------------------------------------------------
+     * --------------------------------------------------------
+     */
 
     /**
      * @notice The admin role for the CrowdLiquidityRegistrar contract
-     * @return The admin role
+     * @return bytes32 The admin role
      */
     function ADMIN_ROLE() external view returns (bytes32);
 
     /**
-     * @notice Check if an address has a role
-     * @dev Returns `true` if `account` has been granted `role`.
-     * @param role The role to check
-     * @param account The address to check
-     * @return bool indicating if the address has the role
+     * @notice Check if the contract is locked
+     * @return bool The locked status
      */
-    function hasRole(
-        bytes32 role,
-        address account
-    ) external view returns (bool);
+    function isCrowdLiquidityLocked() external view returns (bool);
+
+    /**
+     * @notice Lock the contract
+     */
+    function lockCrowdLiquidity() external;
+
+    /**
+     * @notice Unlock the contract
+     */
+    function unlockCrowdLiquidity() external;
+
+    /**
+     * @notice Get the crowd liquidity count
+     * @return uint256 The count
+     */
+    function crowdLiquidityCount() external view returns (uint256);
 
     /**
      * @notice Add a crowd liquidity address
@@ -55,6 +76,15 @@ interface ICrowdLiquidityRegistrar {
      * @return crowdLiquidityId The ID of the added crowd liquidity address
      */
     function addCrowdLiquidityAddress(
+        address crowdLiquidityAddress
+    ) external returns (uint256 crowdLiquidityId);
+
+    /**
+     * @notice Reinstate a crowd liquidity address after it has been removed
+     * @param crowdLiquidityAddress The address of the crowd liquidity to reinstate
+     * @return crowdLiquidityId The ID of the reinstated crowd liquidity
+     */
+    function reinstateCrowdLiquidityAddress(
         address crowdLiquidityAddress
     ) external returns (uint256 crowdLiquidityId);
 
@@ -78,13 +108,13 @@ interface ICrowdLiquidityRegistrar {
 
     /**
      * @notice Get all crowd liquidity information given the crowd liquidity address
-     * @param crowdLiquidityAddress The address of the crowd liquidity
+     * @param crowdLiquidityAddr The address of the crowd liquidity
      * @return crowdLiquidityId The ID of the crowd liquidity
      * @return crowdLiquidityAddress The address of the crowd liquidity
      * @return isValid The validity of the crowd liquidity address
      */
     function getCrowdLiquidityByAddress(
-        address crowdLiquidityAddress
+        address crowdLiquidityAddr
     )
         external
         view
@@ -97,6 +127,7 @@ interface ICrowdLiquidityRegistrar {
     /**
      * @notice Get all crowd liquidity information given the crowd liquidity ID
      * @param crowdLiquidityId The ID of the crowd liquidity
+     * @return id The ID of the crowd liquidity
      * @return crowdLiquidityAddress The address of the crowd liquidity
      * @return isValid The validity of the crowd liquidity address
      */
@@ -105,9 +136,5 @@ interface ICrowdLiquidityRegistrar {
     )
         external
         view
-        returns (
-            uint256 crowdLiquidityId,
-            address crowdLiquidityAddress,
-            bool isValid
-        );
+        returns (uint256 id, address crowdLiquidityAddress, bool isValid);
 }

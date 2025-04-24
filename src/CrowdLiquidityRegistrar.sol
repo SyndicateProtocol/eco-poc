@@ -7,9 +7,11 @@ import {
     ICrowdLiquidityRegistrar
 } from "./interfaces/ICrowdLiquidityRegistrar.sol";
 
-/// @title CrowdLiquidityRegistrar
-/// @notice Manages the crowd liquidity addresses
-/// @dev Controls crowd liquidity addresses with admin management
+/**
+ * @title CrowdLiquidityRegistrar
+ * @notice Manages the crowd liquidity addresses
+ * @dev Controls crowd liquidity addresses with admin management
+ */
 contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
     // Role definitions
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -29,10 +31,15 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
     // Mapping from crowd liquidity address to crowd liquidity ID
     mapping(address => uint256) public crowdLiquidityAddressToId;
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * --------------------------------------------------------
+     * --------------------------------------------------------
+     */
 
-    /// @notice Initialize the contract with necessary addresses
-    /// @param admin The admin address for the contract
+    /**
+     * @notice Initialize the contract with necessary addresses
+     * @param admin The admin address for the contract
+     */
     constructor(address admin) {
         if (admin == address(0)) revert InvalidAddress();
 
@@ -43,7 +50,10 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
         _grantRole(ADMIN_ROLE, admin);
     }
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * --------------------------------------------------------
+     * --------------------------------------------------------
+     */
 
     /**
      * @notice Get the crowd liquidity locked status
@@ -69,7 +79,10 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
         _isCrowdLiquidityLocked = false;
     }
 
-    /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
+    /**
+     * --------------------------------------------------------
+     * --------------------------------------------------------
+     */
 
     /**
      * @notice Get the crowd liquidity count
@@ -209,13 +222,13 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
 
     /**
      * @notice Get all crowd liquidity information given the crowd liquidity address
-     * @param crowdLiquidityAddress The address of the crowd liquidity
+     * @param crowdLiquidityAddr The address of the crowd liquidity
      * @return crowdLiquidityId The ID of the crowd liquidity
      * @return crowdLiquidityAddress The address of the crowd liquidity
      * @return isValid The validity of the crowd liquidity address
      */
     function getCrowdLiquidityByAddress(
-        address crowdLiquidityAddress
+        address crowdLiquidityAddr
     )
         external
         view
@@ -228,13 +241,14 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
     {
         return
             _getCrowdLiquidityById(
-                crowdLiquidityAddressToId[crowdLiquidityAddress]
+                crowdLiquidityAddressToId[crowdLiquidityAddr]
             );
     }
 
     /**
      * @notice Get all crowd liquidity information given the crowd liquidity ID
      * @param crowdLiquidityId The ID of the crowd liquidity
+     * @return id The ID of the crowd liquidity
      * @return crowdLiquidityAddress The address of the crowd liquidity
      * @return isValid The validity of the crowd liquidity address
      */
@@ -244,45 +258,36 @@ contract CrowdLiquidityRegistrar is ICrowdLiquidityRegistrar, AccessControl {
         external
         view
         override
-        returns (
-            uint256 crowdLiquidityId,
-            address crowdLiquidityAddress,
-            bool isValid
-        )
+        returns (uint256 id, address crowdLiquidityAddress, bool isValid)
     {
         return _getCrowdLiquidityById(crowdLiquidityId);
     }
 
     /**
      * @notice Get all crowd liquidity information given the crowd liquidity ID
-     * @param crowdLiquidityId The ID of the crowd liquidity
+     * @param id The ID of the crowd liquidity
+     * @return retId The ID of the crowd liquidity
      * @return crowdLiquidityAddress The address of the crowd liquidity
      * @return isValid The validity of the crowd liquidity address
      */
     function _getCrowdLiquidityById(
-        uint256 crowdLiquidityId
+        uint256 id
     )
         internal
         view
-        returns (
-            uint256 crowdLiquidityId,
-            address crowdLiquidityAddress,
-            bool isValid
-        )
+        returns (uint256 retId, address crowdLiquidityAddress, bool isValid)
     {
-        if (crowdLiquidityId == 0) revert InvalidAddress();
+        if (id == 0) revert InvalidAddress();
 
         CrowdLiquidityElement
-            storage crowdLiquidityElement = crowdLiquidityElements[
-                crowdLiquidityId
-            ];
+            storage crowdLiquidityElement = crowdLiquidityElements[id];
 
         if (!crowdLiquidityElement.isValid)
             revert CrowdLiquidityAddressNotFound();
 
         return (
-            crowdLiquidityId,
-            crowdLiquidityAddress,
+            id,
+            crowdLiquidityElement.crowdLiquidityAddress,
             crowdLiquidityElement.isValid
         );
     }

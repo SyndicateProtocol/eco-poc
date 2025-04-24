@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.25;
 
-import {
-    ICrowdLiquidityRegistrar
-} from "./interfaces/ICrowdLiquidityRegistrar.sol";
+import {ICrowdLiquidityRegistrar} from "./ICrowdLiquidityRegistrar.sol";
 
 /**
  * @title IEcoChainCrowdLiquidityCheckModule

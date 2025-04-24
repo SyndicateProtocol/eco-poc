@@ -59,7 +59,9 @@ contract EcoChainCrowdLiquidityCheckModule is
             revert EmptyAddress();
         }
 
-        _crowdLiquidityRegistrar = crowdLiquidityRegistrar_;
+        _crowdLiquidityRegistrar = ICrowdLiquidityRegistrar(
+            crowdLiquidityRegistrar_
+        );
 
         emit CrowdLiquidityRegistrarUpdated(
             // @dev old crowd liquidity registrar

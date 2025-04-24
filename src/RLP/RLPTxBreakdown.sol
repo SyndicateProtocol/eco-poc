@@ -13,31 +13,36 @@ library RLPTxBreakdown {
     using RLPReader for RLPReader.RLPItem;
 
     /**
-     * @notice Decodes a raw EIP-1559 transaction and breaks it down into its components.
-     * @param rawTx The raw transaction bytes (must begin with 0x02).
-     * @return the breakdown of the transaction
+     * @notice Decode an Ethereum transaction.
+     * @param txData The raw transaction data.
+     * @return chainId The chain ID of the transaction
+     * @return nonce The nonce of the transaction
+     * @return value The value of the transaction
+     * @return data The data of the transaction
+     * @return to The recipient address of the transaction
+     * @return from The sender address of the transaction
      */
     function decodeTx(
-        bytes memory rawTx
+        bytes calldata txData
     )
-        public
+        external
         pure
         returns (
             uint256 chainId,
             uint256 nonce,
-            // uint256 maxPriorityFeePerGas,
-            // uint256 maxFeePerGas,
-            // uint256 gasLimit,
+            // uint256 _maxPriorityFeePerGas,
+            // uint256 _maxFeePerGas,
+            // uint256 _gasLimit,
             uint256 value,
             bytes memory data,
             address to,
             address from
         )
     {
-        require(rawTx.length > 0, "Empty tx");
-        require(rawTx[0] == 0x02, "Not EIP-1559");
+        require(txData.length > 0, "Empty tx");
+        require(txData[0] == 0x02, "Not EIP-1559");
         // Remove the type byte.
-        bytes memory rlpTx = _slice(rawTx, 1, rawTx.length - 1);
+        bytes memory rlpTx = _slice(txData, 1, txData.length - 1);
         RLPReader.RLPItem memory txItem = rlpTx.toRlpItem();
         RLPReader.RLPItem[] memory items = txItem.toList();
         require(items.length == 12, "Invalid tx");
@@ -64,37 +69,30 @@ library RLPTxBreakdown {
             items[8].toRlpBytes()
         );
 
-        uint256 chainId = items[0].toUint();
-        uint256 nonce = items[1].toUint();
-        // uint256 maxPriorityFeePerGas = items[2].toUint();
-        // uint256 maxFeePerGas = items[3].toUint();
-        // uint256 gasLimit = items[4].toUint();
-        uint256 value = items[6].toUint();
-        bytes memory data = items[7].toBytes();
-        address to = items[5].toAddress();
-        address from = _getAddress(unsignedPayload);
+        // Use different variable names to avoid shadowing
+        uint256 _chainId = items[0].toUint();
+        uint256 _nonce = items[1].toUint();
+        // uint256 _maxPriorityFeePerGas = items[2].toUint();
+        // uint256 _maxFeePerGas = items[3].toUint();
+        // uint256 _gasLimit = items[4].toUint();
+        uint256 _value = items[6].toUint();
+        bytes memory _data = items[7].toBytes();
+        address _to = items[5].toAddress();
+        address _from = _getAddress(unsignedPayload, items);
 
-        return (
-            chainId,
-            nonce,
-            // maxPriorityFeePerGas,
-            // maxFeePerGas,
-            // gasLimit,
-            value,
-            data,
-            to,
-            from
-        );
+        return (_chainId, _nonce, _value, _data, _to, _from);
     }
 
     /**
      * @notice Given the unsigned payload, recovers the sender address.
      * @param unsignedPayload The unsigned payload of the transaction.
-     * @return the sender address
+     * @param items The RLP items of the transaction.
+     * @return sender The sender address
      */
     function _getAddress(
-        bytes memory unsignedPayload
-    ) internal pure returns (address) {
+        bytes memory unsignedPayload,
+        RLPReader.RLPItem[] memory items
+    ) internal pure returns (address sender) {
         // RLP-encode the unsigned payload.
         bytes memory encodedUnsigned;
         if (unsignedPayload.length < 56) {

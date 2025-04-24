@@ -9,7 +9,7 @@
     {
       "files": "*.sol",
       "options": {
-        "compiler": "0.8.23",
+        "compiler": "0.8.25",
         "parser": "solidity-parse",
         "printWidth": 80,
         "tabWidth": 4,
